@@ -8,7 +8,7 @@
                 <div class="card-body">
                   <p class="card-title float-left"><i class="mdi mdi-format-list-bulleted menu-icon"></i></p>
                   <p class="card-description float-right">
-                    <b-button variant="success" v-b-modal.modalDailyScrum v-on:click="Add"><i class="mdi mdi-plus btn-icon-prepend"></i>Add Activity</b-button>
+                    <b-button variant="success" v-b-modal.modalDailyScrum v-on:click="Add"><i class="mdi mdi-plus btn-icon-prepend"></i>Tambah</b-button>
                   </p>
                   <div class="table-responsive">
                       <b-table striped hover :items="dataDaily_scrum" :fields="fields">
