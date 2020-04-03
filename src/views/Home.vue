@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid page-body-wrapper">
+    <div class="container-fluid page-body-wrapper">
       <div class="main-panel">
         <div class="content-wrapper">
           <div class="row">
@@ -8,16 +8,19 @@
                 <div class="card-body">
                   <p class="card-title float-left"><i class="mdi mdi-format-list-bulleted menu-icon"></i></p>
                   <p class="card-description float-right">
-                     <b-button variant="success" v-b-modal.modalDaily v-on:click="Add"><i class="mdi mdi-plus btn-icon-prepend"></i> Tambah</b-button>
-                 </p>
+                    <b-button variant="success" v-b-modal.modalDailyScrum v-on:click="Add"><i class="mdi mdi-plus btn-icon-prepend"></i>Add Activity</b-button>
+                  </p>
                   <div class="table-responsive">
-                  <b-table striped hover :items="daily_scrums" :fields="fields">
-                    <template v-slot:cell(Aksi)="data">
-                    <b-button size="sm" variant="danger" v-on:click="Drop(data.item.id)"><i class="mdi mdi-delete btn-icon-prepend"></i> Hapus</b-button>
+                      <b-table striped hover :items="dataDaily_scrum" :fields="fields">
+                  <template v-slot:cell(daily)="data">
+                    <b-badge variant="primry">{{ data.item.daily_scrums}}</b-badge>
                   </template>
+                  <template v-slot:cell(Aksi)="data">
+                    <b-button size="sm" variant="danger" v-on:click="Drop(data.item.id)"><i class="mdi mdi-delete btn-icon-prepend"></i></b-button>
+                  </template>
+                </b-table>
                   
-                  </b-table>
-                <b-pagination
+                    <b-pagination
                   v-model="currentPage"
                   :per-page="perPage"
                   :total-rows="rows"
@@ -41,98 +44,113 @@
           </div>
         </div>
 
-        <b-modal 
-      id="modalDaily"
+ <b-modal 
+      id="modalDailyScrum"
       @ok="Save"
     >
       <template v-slot:modal-title>
-        Form Input Daily Scrum
+        Form Daily Scrum
       </template>
         <form ref="form">
-          <div class="form-group">
-            <label for="kategori" class="col-form-label">Team</label>
+         <div class="form-group">
+            <label for="team" class="col-form-label">Team</label>
             <select class="form-control" name="team" id="team" v-model="team">
-              <option value="DDS" checked>DDS</option>
-              <option value="BEON">BEON</option>
+              <option value="BEON" checked>BEON</option>
+              <option value="DDS">DDS</option>
               <option value="DOT">DOT</option>
-              <option value="node1">node1</option>
-              <option value="node2">node2</option>
-              <option value="react1">react1</option>
-              <option value="react2">react2</option>
-              <option value="laravel">laravel</option>
-              <option value="laravel_vue">laravel_vue</option>
-              <option value="android">android</option>
+              <option value="node1">Node 1</option>
+              <option value="node2">Node 2</option>
+              <option value="react1">React 1</option>
+              <option value="react2">React 2</option>
+              <option value="laravel">Laravel</option>
+              <option value="laravel_vue">Laravel & Vue</option>
+              <option value="android">Android</option>
             </select>
           </div>
           <div class="form-group">
-            <label for="activity_yesterday" class="col-form-label">Aktivity Yesterday</label>
+            <label for="activity_yesterday" class="col-form-label">Activity Yesterday</label>
             <input type="text" name="activity_yesterday" class="form-control" id="activity_yesterday" placeholder="Activity Yesterday" v-model="activity_yesterday">
           </div>
           <div class="form-group">
-            <label for="activity_today" class="col-form-label">Aktivity Today</label>
+            <label for="activity_today" class="col-form-label">Activity Today</label>
             <input type="text" name="activity_today" class="form-control" id="activity_today" placeholder="Activity Today" v-model="activity_today">
           </div>
           <div class="form-group">
-            <label for="problem_yesterday" class="col-form-label">Problem Yesterday</label>
+            <label for="problem_yesterday" class="col-form-label"> Problem Yesterday </label>
             <input type="text" name="problem_yesterday" class="form-control" id="problem_yesterday" placeholder="Problem Yesterday" v-model="problem_yesterday">
           </div>
           <div class="form-group">
             <label for="solution" class="col-form-label">Solution</label>
             <input type="text" name="solution" class="form-control" id="solution" placeholder="Solution" v-model="solution">
           </div>
-          
         </form>
     </b-modal>
-      </div>
-      <!-- main-panel ends -->
-    </div>
+  </div>
+</div>
 </template>
 
 <script>
 module.exports = {
   data : function(){
     return {
+      search: "",
       id: "",
-      id_users:'',
+      id_users: "this.id_users",
       team: "",
       activity_yesterday: "",
       activity_today: "",
       problem_yesterday: "",
       solution: "",
+      tanggal:"",
       action: "",
       message: "",
       currentPage: 1,
       rows: 0,
       perPage: 10,
       key: "",
+      dataDaily_scrum: [],
       daily_scrums: [],
-      fields: ["id", "team", "activity_yesterday", "activity_today", "problem_yesterday", "solution", "Aksi"],
+      users: [],
+      fields: ["tanggal", "activity_yesterday", "activity_today", "problem_yesterday","solution" ,"Aksi"],
     }
   },
 
  methods: {
-    getData : function(){
-      let conf = { headers: { "Authorization" : 'Bearer ' + this.key } };
-      let offset = (this.currentPage - 1) * this.perPage;
-      this.$bvToast.show("loadingToast");
-      this.axios.get("/daily/" + this.perPage + "/" + offset, conf)
-      .then(response => {
-        if(response.data.status == 1){
-          this.$bvToast.hide("loadingToast");
-          this.daily_scrums = response.data.daily_scrums;
-          this.rows = response.data.count;
-        } else {
-          this.$bvToast.hide("loadingToast");
-          this.message = "Gagal menampilkan data daily_scrum."
-          this.$bvToast.show("message");
-          this.$router.push({name: "login"})
-        }
-        
-      })
-      .catch(error => {
-        console.log(error);
-      });
-    },
+    getData: function() {
+        let conf = { headers: { Authorization: "Bearer " + this.key } };
+        let offset = (this.currentPage - 1) * this.perPage;
+        // let id_users = this.response.data.user.id;
+        // this.$bvToast.show("loadingToast");
+       this.axios
+        .get("/login/check", conf)
+        .then(response => {
+          this.id_users = response.data.user.id;
+          this.axios.get("/dailyscrum/" + this.perPage + "/" + offset + "/" + response.data.user.id, conf)
+            .then(response => {
+              this.status = response.data.status;
+              if (response.data.status == 1) {
+                this.dataDaily_scrum = response.data.daily_scrums;
+                console.log(response.data.count);
+     
+                if (response.data.count == 0) {
+                  this.status = 0;
+          
+                }
+              } else {
+                console.log("Data Tidak Ditemukan");
+          
+              }
+            })
+            // .catch(error => {
+            //   console.log(error);
+            //   this.loading = false;
+            // });
+        })
+        // .catch(error => {
+        //   console.log(error);
+        //   this.loading = false;
+        // });
+      },
 
     pagination : function(){
       if(this.search == ""){
