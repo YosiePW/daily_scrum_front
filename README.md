@@ -1,4 +1,3 @@
-# front_daily_scrum_radilla_nathaniel_owena
 
 ## Project setup
 ```
